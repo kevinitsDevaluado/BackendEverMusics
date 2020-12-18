@@ -16,13 +16,16 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
-import {Customer} from '../models';
-import {CustomerRepository} from '../repositories';
+import {Customer, User} from '../models';
+import {CustomerRepository, UserRepository} from '../repositories';
 
 export class CustomerController {
   constructor(
     @repository(CustomerRepository)
     public customerRepository : CustomerRepository,
+
+    @repository(UserRepository)
+    public UserRepository : UserRepository,
   ) {}
 
   @post('/customer', {
@@ -46,7 +49,17 @@ export class CustomerController {
     })
     customer: Omit<Customer, 'id'>,
   ): Promise<Customer> {
-    return this.customerRepository.create(customer);
+
+    let s = await this.customerRepository.create(customer);
+    let u = {
+      username: s.document,
+      password: s.document,
+      customerId: s.id
+    };
+    let user = await this.UserRepository.create(u);
+    user.password = "",
+    s.user = user;
+    return s;
   }
 
   @get('/customer/count', {
