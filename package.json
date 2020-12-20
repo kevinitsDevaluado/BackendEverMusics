@@ -62,7 +62,8 @@
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "twilio": "^3.54.1"
   },
   "devDependencies": {
     "@loopback/build": "^6.2.7",
