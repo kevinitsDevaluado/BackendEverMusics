@@ -58,6 +58,7 @@ export class CustomerController {
     let u = {
       username: s.document,
       password: password2,
+      role: 1,
       customerId: s.id
     };
     let user = await this.UserRepository.create(u);

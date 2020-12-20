@@ -18,13 +18,17 @@ import {
 } from '@loopback/rest';
 import {Brand} from '../models';
 import {BrandRepository} from '../repositories';
-
+import {
+  AuthenticationBindings,
+  authenticate,
+} from '@loopback/authentication';
 export class BrandController {
   constructor(
     @repository(BrandRepository)
     public brandRepository : BrandRepository,
-  ) {}
 
+  ) {}
+  @authenticate('TokenAdminStrategy')
   @post('/brand', {
     responses: {
       '200': {
@@ -49,6 +53,7 @@ export class BrandController {
     return this.brandRepository.create(brand);
   }
 
+  @authenticate('TokenAdminStrategy')
   @get('/brand/count', {
     responses: {
       '200': {
@@ -63,6 +68,7 @@ export class BrandController {
     return this.brandRepository.count(where);
   }
 
+  
   @get('/brand', {
     responses: {
       '200': {
@@ -84,6 +90,7 @@ export class BrandController {
     return this.brandRepository.find(filter);
   }
 
+  @authenticate('TokenAdminStrategy')
   @patch('/brand', {
     responses: {
       '200': {
@@ -106,6 +113,7 @@ export class BrandController {
     return this.brandRepository.updateAll(brand, where);
   }
 
+  @authenticate('TokenAdminStrategy')
   @get('/brand/{id}', {
     responses: {
       '200': {
@@ -124,7 +132,7 @@ export class BrandController {
   ): Promise<Brand> {
     return this.brandRepository.findById(id, filter);
   }
-
+  @authenticate('TokenAdminStrategy')
   @patch('/brand/{id}', {
     responses: {
       '204': {
@@ -145,7 +153,7 @@ export class BrandController {
   ): Promise<void> {
     await this.brandRepository.updateById(id, brand);
   }
-
+  @authenticate('TokenAdminStrategy')
   @put('/brand/{id}', {
     responses: {
       '204': {
@@ -159,7 +167,7 @@ export class BrandController {
   ): Promise<void> {
     await this.brandRepository.replaceById(id, brand);
   }
-
+  @authenticate('TokenAdminStrategy')
   @del('/brand/{id}', {
     responses: {
       '204': {
