@@ -16,10 +16,13 @@ import {
   del,
   requestBody,
 } from '@loopback/rest';
-import {Customer, User} from '../models';
+import {Customer, EmailNotification, User} from '../models';
 import {CustomerRepository, UserRepository} from '../repositories';
 import{EncryptDecrypt} from '../services/encrypt-decrypt.service';
 import{ServiceKeys as keys} from '../keys/services-keys';
+import{generate} from 'generate-password';
+import {PasswordKeys} from '../keys/password-keys';
+import {NotificationService} from '../services/notification.service';
 export class CustomerController {
   constructor(
     @repository(CustomerRepository)
@@ -52,7 +55,14 @@ export class CustomerController {
   ): Promise<Customer> {
 
     let s = await this.customerRepository.create(customer);
-    let password1 = new EncryptDecrypt(keys.MD5).Encrypt(s.document);
+    let randomPassword = generate({
+      length: PasswordKeys.LENGTH,
+      numbers: PasswordKeys.NUMBERS,
+      lowercase: PasswordKeys.LOWERCASE,
+      uppercase: PasswordKeys.UPPERCASE,
+
+    });
+    let password1 = new EncryptDecrypt(keys.MD5).Encrypt(randomPassword);
     let password2 = new EncryptDecrypt(keys.MD5).Encrypt(password1);
 
     let u = {
@@ -62,6 +72,14 @@ export class CustomerController {
       customerId: s.id
     };
     let user = await this.UserRepository.create(u);
+    let notification = new EmailNotification({
+      //textbody:'loco',
+      textbody: `Hola!! ${s.name} ${s.lastname}, Haz creado una cuenta te damos la Bienvenida a nombre de Nuestra Empresa EVERMUSIC, su usuario es su Documento de identidad y su contraseña es: ${randomPassword}`,
+      htmlbody: `Hola!! ${s.name} ${s.lastname},  <br/> Haz creado una cuenta te damos la Bienvenida a nombre de Nuestra Empresa EVERMUSIC, su usuario es su Documento de identidad y su contraseña es:  <strong> ${randomPassword}</strong>`,
+      to: s.email,
+      subject:'Nueva Cuenta'
+    });
+    await new NotificationService().MailNotification(notification);
     user.password = "",
     s.user = user;
     return s;

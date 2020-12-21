@@ -55,6 +55,7 @@
     "@loopback/rest": "^9.1.0",
     "@loopback/rest-explorer": "^3.0.4",
     "@loopback/service-proxy": "^3.0.4",
+    "@sendgrid/mail": "^7.4.0",
     "crypto-js": "^4.0.0",
     "generate-password": "^1.5.1",
     "jsonwebtoken": "^8.5.1",
