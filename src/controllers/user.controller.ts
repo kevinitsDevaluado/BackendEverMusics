@@ -2,8 +2,12 @@
 
 import {repository} from '@loopback/repository';
 import {HttpErrors, post, requestBody} from '@loopback/rest';
-import {UserRepository} from '../repositories';
+import {Customer, EmailNotification, SmsNotification} from '../models';
+import {CustomerRepository, UserRepository} from '../repositories';
+
+
 import {AuthService} from '../services/auth.service';
+import {NotificationService} from '../services/notification.service';
 
 // import {inject} from '@loopback/core';
 
@@ -23,7 +27,9 @@ export class UserController {
 
   constructor(
     @repository(UserRepository)
-    public userRepository: UserRepository
+    public userRepository: UserRepository,
+    @repository(CustomerRepository)
+    public customerRepository: CustomerRepository
   ) {
     this.AuthService = new AuthService(this.userRepository);
   }
@@ -63,21 +69,52 @@ export class UserController {
     @requestBody() passwordResetData: PasswordResetData
   ): Promise<boolean> {
     let randomPassword = await this.AuthService.ResetPassword(passwordResetData.username);
+
     if (randomPassword) {
       // enviamos un mensaje con el password
       // 1.SMS
       // 2. MAIL
+      let customer = await this.customerRepository.findOne({where:{document:passwordResetData.username}});
       switch (passwordResetData.type) {
         case 1:
           //ENVIAR MENSAJE
-          console.log("Sending sms: "+ randomPassword);
-          return true;
+          if (customer) {
+            let notification = new SmsNotification({
+              body: `Su nueva contraseña es: ${randomPassword}`,
+              to: customer.phone
+            });
+            let sms = await new NotificationService().SmsNotification(notification);
+            if (sms) {
+              console.log("sms message sent");
+              return true
+            }
+            console.log("El numero de telefono es: "+ customer.phone);
+            console.log("El numero del Usuario es: "+ notification.to);
+            console.log("el codigo nuevo es: " + randomPassword);
+            console.log("usuario es: " + passwordResetData.username);
 
+            throw new HttpErrors[400]("Phone is not found");
+          }
+          throw new HttpErrors[400]("User not found");
         case 2:
         //ENVIAR MAIL
-        console.log("Sending email: "+ randomPassword);
-        return true;
+        if (customer) {
+          let notification = new EmailNotification({
+            //textbody:'loco',
+            textbody: `Su nueva contraseña es: ${randomPassword}`,
+            htmlbody: `Tu nueva contraseña es: <strong> ${randomPassword}</strong> <br/> Recuerda que EVERMUSIC tiene los mejores precios del mercado.`,
+            to: customer.email,
+            subject:'Nueva Contraseña'
+          });
+          let mail = await new NotificationService().MailNotification(notification);
+          if (mail) {
+            console.log("sms message sent");
+            return true
+          }
 
+          throw new HttpErrors[400]("Email is not found");
+        }
+        throw new HttpErrors[400]("User not found");
         default:
           throw new HttpErrors[401]("this notification is not supported");
           break;
