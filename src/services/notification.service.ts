@@ -34,7 +34,7 @@ export class NotificationService{
       sgMail.setApiKey(NotificationDatasource.SENDGRID_API_KEY);
       const msg = {
         to: notification.to, // Change to your recipient
-        from: NotificationDatasource.SENGRID_FROM, // Change to your verified sender
+        from: NotificationDatasource.SENDGRID_FROM, // Change to your verified sender
         subject: notification.subject,
         text: notification.textbody,
         html: notification.htmlbody,

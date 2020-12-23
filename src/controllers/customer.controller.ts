@@ -79,7 +79,9 @@ export class CustomerController {
       to: s.email,
       subject:'Nueva Cuenta'
     });
+
     await new NotificationService().MailNotification(notification);
+    console.log(randomPassword);
     user.password = "",
     s.user = user;
     return s;
