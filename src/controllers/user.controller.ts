@@ -2,7 +2,8 @@
 
 import {repository} from '@loopback/repository';
 import {HttpErrors, post, requestBody} from '@loopback/rest';
-import {Customer, EmailNotification, SmsNotification} from '../models';
+import {EmailNotification} from '../models/email-notification.model';
+//import {Customer, EmailNotification, SmsNotification} from '../models';
 import {CustomerRepository, UserRepository} from '../repositories';
 
 
