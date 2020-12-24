@@ -21,9 +21,8 @@ export * from './shopping-cart-customer.controller';
 export * from './customer-user.controller';
 export * from './user-customer.controller';
 export * from './user.controller';
-<<<<<<< HEAD
+
 export * from './file-upload.controller';
 export * from './file-download.controller';
-=======
->>>>>>> resetPassword
+
 export * from './advertising.controller';
