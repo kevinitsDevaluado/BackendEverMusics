@@ -25,11 +25,9 @@ export class AdvertisingController {
     public advertisingRepository : AdvertisingRepository,
   ) {}
 
-<<<<<<< HEAD
+
   @post('/advertising', {
-=======
-  @post('/adevertising', {
->>>>>>> resetPassword
+
     responses: {
       '200': {
         description: 'Advertising model instance',
@@ -53,11 +51,9 @@ export class AdvertisingController {
     return this.advertisingRepository.create(advertising);
   }
 
-<<<<<<< HEAD
-  @get('/advertising/count', {
-=======
+
   @get('/adevertising/count', {
->>>>>>> resetPassword
+
     responses: {
       '200': {
         description: 'Advertising model count',
@@ -71,11 +67,9 @@ export class AdvertisingController {
     return this.advertisingRepository.count(where);
   }
 
-<<<<<<< HEAD
+
   @get('/advertising', {
-=======
-  @get('/adevertising', {
->>>>>>> resetPassword
+
     responses: {
       '200': {
         description: 'Array of Advertising model instances',
@@ -96,11 +90,9 @@ export class AdvertisingController {
     return this.advertisingRepository.find(filter);
   }
 
-<<<<<<< HEAD
+
   @patch('/advertising', {
-=======
-  @patch('/adevertising', {
->>>>>>> resetPassword
+
     responses: {
       '200': {
         description: 'Advertising PATCH success count',
@@ -122,11 +114,9 @@ export class AdvertisingController {
     return this.advertisingRepository.updateAll(advertising, where);
   }
 
-<<<<<<< HEAD
+
   @get('/advertising/{id}', {
-=======
-  @get('/adevertising/{id}', {
->>>>>>> resetPassword
+
     responses: {
       '200': {
         description: 'Advertising model instance',
@@ -145,11 +135,9 @@ export class AdvertisingController {
     return this.advertisingRepository.findById(id, filter);
   }
 
-<<<<<<< HEAD
+
   @patch('/advertising/{id}', {
-=======
-  @patch('/adevertising/{id}', {
->>>>>>> resetPassword
+
     responses: {
       '204': {
         description: 'Advertising PATCH success',
@@ -170,11 +158,9 @@ export class AdvertisingController {
     await this.advertisingRepository.updateById(id, advertising);
   }
 
-<<<<<<< HEAD
+
   @put('/advertising/{id}', {
-=======
-  @put('/adevertising/{id}', {
->>>>>>> resetPassword
+
     responses: {
       '204': {
         description: 'Advertising PUT success',
@@ -188,11 +174,9 @@ export class AdvertisingController {
     await this.advertisingRepository.replaceById(id, advertising);
   }
 
-<<<<<<< HEAD
+
   @del('/advertising/{id}', {
-=======
-  @del('/adevertising/{id}', {
->>>>>>> resetPassword
+
     responses: {
       '204': {
         description: 'Advertising DELETE success',
