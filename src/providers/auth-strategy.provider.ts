@@ -68,9 +68,9 @@ export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
     cb: (err: Error | null, user?: object | false) => void,
   ) {
 
-    this.AuthService.VerifyToken(token).then(data => {
-      if (data && data.role == 1) {
-        return cb(null, data);
+    this.AuthService.VerifyToken(token).then(info => {
+      if (info && info.data.role == 1) {
+        return cb(null, info);
       }
       return cb(null,false);
     });
@@ -81,9 +81,11 @@ export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
     cb: (err: Error | null, user?: object | false) => void,
   ) {
 
-    this.AuthService.VerifyToken(token).then(data => {
-      if (data && data.role == 2) {
-        return cb(null, data);
+    this.AuthService.VerifyToken(token).then(info => {
+      //console.log(info);
+      if (info && info.data.role == 2) {
+        console.log("I'm administrator");
+        return cb(null, info);
       }
       return cb(null,false);
     });
