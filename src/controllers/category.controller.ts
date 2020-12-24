@@ -18,13 +18,16 @@ import {
 } from '@loopback/rest';
 import {Category} from '../models';
 import {CategoryRepository} from '../repositories';
-
+import {
+  AuthenticationBindings,
+  authenticate,
+} from '@loopback/authentication';
 export class CategoryController {
   constructor(
     @repository(CategoryRepository)
     public categoryRepository : CategoryRepository,
   ) {}
-
+  @authenticate('TokenAdminStrategy')
   @post('/category', {
     responses: {
       '200': {
@@ -83,7 +86,7 @@ export class CategoryController {
   ): Promise<Category[]> {
     return this.categoryRepository.find(filter);
   }
-
+  @authenticate('TokenAdminStrategy')
   @patch('/category', {
     responses: {
       '200': {
@@ -124,7 +127,7 @@ export class CategoryController {
   ): Promise<Category> {
     return this.categoryRepository.findById(id, filter);
   }
-
+  @authenticate('TokenAdminStrategy')
   @patch('/category/{id}', {
     responses: {
       '204': {
@@ -145,7 +148,7 @@ export class CategoryController {
   ): Promise<void> {
     await this.categoryRepository.updateById(id, category);
   }
-
+  @authenticate('TokenAdminStrategy')
   @put('/category/{id}', {
     responses: {
       '204': {
@@ -159,7 +162,7 @@ export class CategoryController {
   ): Promise<void> {
     await this.categoryRepository.replaceById(id, category);
   }
-
+  @authenticate('TokenAdminStrategy')
   @del('/category/{id}', {
     responses: {
       '204': {

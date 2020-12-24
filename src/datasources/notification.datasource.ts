@@ -3,5 +3,5 @@ export const NotificationDatasource = {
   TWILIO_SID: process.env.TWILIO_SID,
   TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-  SENGRID_FROM: process.env.SENDGRID_FROM
+  SENDGRID_FROM: process.env.SENDGRID_FROM
 }

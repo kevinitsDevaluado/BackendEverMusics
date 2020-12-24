@@ -21,7 +21,7 @@ export class AuthService{
    * @param password
    */
   async Identity(username:string,password:string): Promise<User | false>{
-    console.log('username: ${username} - password: ${password}');
+    //console.log('username: ${username} - password: ${password}');
     let user = await this.userRepository.findOne({where: {username: username}});
     if(user){
       let cryptPass = new EncryptDecrypt(keys.LOGIN_CRYPT_METHOD).Encrypt(password);
@@ -55,7 +55,8 @@ export class AuthService{
    */
   async VerifyToken(token:string){
     try {
-      let data = jwt.verify(token,keys.JWT_SECRET_KEY).data;
+      let data = jwt.verify(token,keys.JWT_SECRET_KEY);
+      console.log(data);
       return data;
     } catch (error) {
       return false;

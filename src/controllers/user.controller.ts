@@ -78,24 +78,24 @@ export class UserController {
       switch (passwordResetData.type) {
         case 1:
           //ENVIAR MENSAJE
-          if (customer) {
-            let notification = new SmsNotification({
-              body: `Su nueva contraseña es: ${randomPassword}`,
-              to: customer.phone
-            });
-            let sms = await new NotificationService().SmsNotification(notification);
-            if (sms) {
-              console.log("sms message sent");
-              return true
-            }
-            console.log("El numero de telefono es: "+ customer.phone);
-            console.log("El numero del Usuario es: "+ notification.to);
-            console.log("el codigo nuevo es: " + randomPassword);
-            console.log("usuario es: " + passwordResetData.username);
+          // if (customer) {
+          //   let notification = new SmsNotification({
+          //     body: `Su nueva contraseña es: ${randomPassword}`,
+          //     to: customer.phone
+          //   });
+          //   let sms = await new NotificationService().SmsNotification(notification);
+          //   if (sms) {
+          //     console.log("sms message sent");
+          //     return true
+          //   }
+          //   console.log("El numero de telefono es: "+ customer.phone);
+          //   console.log("El numero del Usuario es: "+ notification.to);
+          //   console.log("el codigo nuevo es: " + randomPassword);
+          //   console.log("usuario es: " + passwordResetData.username);
 
-            throw new HttpErrors[400]("Phone is not found");
-          }
-          throw new HttpErrors[400]("User not found");
+          //   throw new HttpErrors[400]("Phone is not found");
+          // }
+          // throw new HttpErrors[400]("User not found");
         case 2:
         //ENVIAR MAIL
         if (customer) {
@@ -109,9 +109,10 @@ export class UserController {
           let mail = await new NotificationService().MailNotification(notification);
           if (mail) {
             console.log("sms message sent");
+            console.log(randomPassword);
+
             return true
           }
-
           throw new HttpErrors[400]("Email is not found");
         }
         throw new HttpErrors[400]("User not found");
