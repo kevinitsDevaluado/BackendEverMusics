@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   repository,
 } from '@loopback/repository';
@@ -5,6 +6,7 @@ import {
   param,
   get,
   getModelSchemaRef,
+  del,
 } from '@loopback/rest';
 import {
   Image,
@@ -34,5 +36,16 @@ export class ImageProductController {
     @param.path.string('id') id: typeof Image.prototype.id,
   ): Promise<Product> {
     return this.imageRepository.product(id);
+  }
+  @authenticate('TokenAdminStrategy')
+  @del('/product-image/{id}', {
+    responses: {
+      '204': {
+        description: 'Product Image DELETE success',
+      },
+    },
+  })
+  async deleteById(@param.path.string('id') imageId: string): Promise<void> {
+    await this.imageRepository.deleteById(imageId);
   }
 }

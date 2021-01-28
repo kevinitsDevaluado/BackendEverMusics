@@ -9,23 +9,19 @@ const sgMail = require('@sendgrid/mail');
 export class NotificationService{
   async SmsNotification(notification: SmsNotification): Promise<boolean>{
     try {
-      const accountSid = NotificationDatasource.TWILIO_SID;
-      const authToken = NotificationDatasource.TWILIO_AUTH_TOKEN;
-      const client = twilio(accountSid, authToken);
-
-      await client.messages
-        .create({
-          body: notification.body,
-          from: NotificationDatasource.TWILIO_FROM,
-          to: notification.to
-        })
-        .then((message: any) => {
-          console.log(message)
-        });
+      const client = twilio(NotificationDatasource.accountSid, NotificationDatasource.authToken);
+      await client.messages.create({
+        body: notification.body,
+        to: notification.to,
+        from: NotificationDatasource.fromSMS
+      }).then((res: any) => {
+        console.log(res);
+      });
       return true;
     } catch (error) {
       return false;
     }
+
   }
 
   async MailNotification(notification: EmailNotification): Promise<boolean>{

@@ -18,13 +18,16 @@ import {
 } from '@loopback/rest';
 import {Product} from '../models';
 import {ProductRepository} from '../repositories';
-
+import {
+  AuthenticationBindings,
+  authenticate,
+} from '@loopback/authentication';
 export class ProductController {
   constructor(
     @repository(ProductRepository)
     public productRepository : ProductRepository,
   ) {}
-
+  @authenticate('TokenAdminStrategy')
   @post('/product', {
     responses: {
       '200': {
@@ -83,7 +86,7 @@ export class ProductController {
   ): Promise<Product[]> {
     return this.productRepository.find(filter);
   }
-
+  @authenticate('TokenAdminStrategy')
   @patch('/product', {
     responses: {
       '200': {
@@ -124,7 +127,7 @@ export class ProductController {
   ): Promise<Product> {
     return this.productRepository.findById(id, filter);
   }
-
+  @authenticate('TokenAdminStrategy')
   @patch('/product/{id}', {
     responses: {
       '204': {
@@ -145,7 +148,7 @@ export class ProductController {
   ): Promise<void> {
     await this.productRepository.updateById(id, product);
   }
-
+  @authenticate('TokenAdminStrategy')
   @put('/product/{id}', {
     responses: {
       '204': {
@@ -159,7 +162,7 @@ export class ProductController {
   ): Promise<void> {
     await this.productRepository.replaceById(id, product);
   }
-
+  @authenticate('TokenAdminStrategy')
   @del('/product/{id}', {
     responses: {
       '204': {

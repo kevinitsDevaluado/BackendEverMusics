@@ -2,15 +2,22 @@
 
 import {repository} from '@loopback/repository';
 import {HttpErrors, post, requestBody} from '@loopback/rest';
-import {EmailNotification} from '../models/email-notification.model';
-//import {Customer, EmailNotification, SmsNotification} from '../models';
-import {CustomerRepository, UserRepository} from '../repositories';
+import {NotificationKeys} from '../keys/notification-keys';
+//import {SmsNotification} from '../models';
+//import {EmailNotification} from '../models/email-notification.model';
+import {Customer, EmailNotification, SmsNotification} from '../models';
+import {CustomerRepository, ShoppingCartRepository, UserRepository} from '../repositories';
 
 
 import {AuthService} from '../services/auth.service';
 import {NotificationService} from '../services/notification.service';
 
 // import {inject} from '@loopback/core';
+class ChangePasswordData {
+  id: string;
+  currentPassword: string;
+  newPassword: string;
+}
 
 class Credentials{
   username: string;
@@ -24,15 +31,17 @@ class PasswordResetData{
 
 export class UserController {
 
-  AuthService: AuthService;
+  authService: AuthService;
 
   constructor(
     @repository(UserRepository)
     public userRepository: UserRepository,
     @repository(CustomerRepository)
-    public customerRepository: CustomerRepository
+    public customerRepository: CustomerRepository,
+    @repository(ShoppingCartRepository)
+    public shoppingCartRepository: ShoppingCartRepository
   ) {
-    this.AuthService = new AuthService(this.userRepository);
+    this.authService = new AuthService(this.userRepository, shoppingCartRepository);
   }
 
   @post('/login',{
@@ -43,13 +52,12 @@ export class UserController {
     }
   })
   async login(
-    @requestBody() credentials: Credentials
-  ): Promise<object> {
-    let user = await this.AuthService.Identity(credentials.username,credentials.password);
-    if (user){
-      let tk = await this.AuthService.GenerateToken(user);
+    @requestBody() credentials: Credentials): Promise<object> {
+    let data = await this.authService.Identity(credentials.username,credentials.password);
+    if (data){
+      let tk = await this.authService.GenerateToken(data);
       return {
-        data: user,
+        data: data,
         token: tk
       }
     }else{
@@ -62,69 +70,85 @@ export class UserController {
   @post('/password-reset',{
     responses:{
       '200':{
-        description: 'Login for user'
+        description: 'Reset the password'
       }
     }
   })
   async reset(
-    @requestBody() passwordResetData: PasswordResetData
-  ): Promise<boolean> {
-    let randomPassword = await this.AuthService.ResetPassword(passwordResetData.username);
+    @requestBody() data: PasswordResetData): Promise<boolean> {
+      let newPass = await this.authService.ResetPassword(data.username);
+      let customer = await this.customerRepository.findOne({where: {document: data.username}});
+      if (newPass) {
+        switch (data.type) {
+          // sms
+          case 1:
+            let smsNotification: SmsNotification = new SmsNotification({
+              body: `${NotificationKeys.resetPasswordBody} ${newPass}`,
+              to: customer?.phone
+            });
+            let sms = await new NotificationService().SmsNotification(smsNotification);
+            console.log(newPass);
+            if (sms) {
+              return true;
+            }
+            throw new HttpErrors[400]("Error sending sms message.");
+            break;
+          case 2:
+            let emailNotification: EmailNotification = new EmailNotification({
+              subject: NotificationKeys.subjectReset,
+              textbody: `${NotificationKeys.resetPasswordBody} ${newPass}`,
+              htmlbody: `${NotificationKeys.resetPasswordBody} ${newPass}`,
+              to: customer?.email
+            });
+            let email = await new NotificationService().MailNotification(emailNotification);
+            console.log(newPass);
+            if (email) {
 
-    if (randomPassword) {
-      // enviamos un mensaje con el password
-      // 1.SMS
-      // 2. MAIL
-      let customer = await this.customerRepository.findOne({where:{document:passwordResetData.username}});
-      switch (passwordResetData.type) {
-        case 1:
-          //ENVIAR MENSAJE
-          // if (customer) {
-          //   let notification = new SmsNotification({
-          //     body: `Su nueva contraseña es: ${randomPassword}`,
-          //     to: customer.phone
-          //   });
-          //   let sms = await new NotificationService().SmsNotification(notification);
-          //   if (sms) {
-          //     console.log("sms message sent");
-          //     return true
-          //   }
-          //   console.log("El numero de telefono es: "+ customer.phone);
-          //   console.log("El numero del Usuario es: "+ notification.to);
-          //   console.log("el codigo nuevo es: " + randomPassword);
-          //   console.log("usuario es: " + passwordResetData.username);
+              return true;
+            }
+            throw new HttpErrors[400]("Error sending email message.");
+            break;
 
-          //   throw new HttpErrors[400]("Phone is not found");
-          // }
-          // throw new HttpErrors[400]("User not found");
-        case 2:
-        //ENVIAR MAIL
-        if (customer) {
-          let notification = new EmailNotification({
-            //textbody:'loco',
-            textbody: `Su nueva contraseña es: ${randomPassword}`,
-            htmlbody: `Tu nueva contraseña es: <strong> ${randomPassword}</strong> <br/> Recuerda que EVERMUSIC tiene los mejores precios del mercado.`,
-            to: customer.email,
-            subject:'Nueva Contraseña'
-          });
-          let mail = await new NotificationService().MailNotification(notification);
-          if (mail) {
-            console.log("sms message sent");
-            console.log(randomPassword);
-
-            return true
-          }
-          throw new HttpErrors[400]("Email is not found");
+          default:
+            throw new HttpErrors[400]("This type of communication is not valid.");
+            break;
         }
-        throw new HttpErrors[400]("User not found");
-        default:
-          throw new HttpErrors[401]("this notification is not supported");
-          break;
+      }
+      throw new HttpErrors[401]("User not found");
+    }
+    @post('/change-password', {
+      responses: {
+        '200': {
+          description: 'Login for user',
+        },
+      },
+    })
+    async changePassword(
+      @requestBody() data: ChangePasswordData): Promise<boolean> {
+      let user = await this.authService.VerifyUserToChangePassword(data.id, data.currentPassword);
+      if (user) {
+        return await this.authService.ChangePassword(user, data.newPassword);
+      } else {
+        throw new HttpErrors[401]("User or Password invalid");
       }
     }
-    throw new HttpErrors[401]("User not Fount");
-  }
-
-
+    /**
+      @post('/change-password', {
+      responses: {
+        '200': {
+          description: 'Login for user',
+        },
+      },
+    })
+    async changePassword(
+      @requestBody() data: ChangePasswordData): Promise<boolean> {
+      let user = await this.AuthService.VerifyUserToChangePassword(data.id, data.currentPassword);
+      if (user) {
+        return await this.AuthService.ChangePassword(user, data.newPassword);
+      } else {
+        throw new HttpErrors[401]("User or Password invalid");
+      }
+    }
+  */
 
 }

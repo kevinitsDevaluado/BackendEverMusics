@@ -12,3 +12,4 @@ export * from './sms-notification.model';
 export * from './email-notification.model';
 
 export * from './advertising.model';
+export * from './authenticated-user.model';

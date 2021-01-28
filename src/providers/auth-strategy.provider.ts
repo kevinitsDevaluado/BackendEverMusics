@@ -8,7 +8,7 @@ import {
 import {BasicStrategy} from 'passport-http';
 import {repository} from '@loopback/repository';
 import {AuthService} from '../services/auth.service';
-import {UserRepository} from '../repositories';
+import {ShoppingCartRepository, UserRepository} from '../repositories';
 import {Strategy as BearerStrategy} from 'passport-http-bearer'
 
 export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
@@ -17,9 +17,11 @@ export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
     @inject(AuthenticationBindings.METADATA)
     private metadata: AuthenticationMetadata,
     @repository(UserRepository)
-    public userRepository: UserRepository
+    public userRepository: UserRepository,
+    @repository(ShoppingCartRepository)
+    public shoppingCartRepository: ShoppingCartRepository
   ) {
-    this.AuthService = new AuthService(userRepository);
+    this.AuthService = new AuthService(userRepository,shoppingCartRepository);
   }
 
   value(): ValueOrPromise<Strategy | undefined> {
@@ -82,11 +84,12 @@ export class MyAuthStrategyProvider implements Provider<Strategy | undefined> {
   ) {
 
     this.AuthService.VerifyToken(token).then(info => {
-      //console.log(info);
+      console.log(info);
       if (info && info.data.role == 2) {
         console.log("I'm administrator");
         return cb(null, info);
       }
+      console.log("not");
       return cb(null,false);
     });
   }
