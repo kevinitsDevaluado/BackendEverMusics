@@ -26,3 +26,4 @@ export * from './file-upload.controller';
 export * from './file-download.controller';
 
 export * from './advertising.controller';
+export * from './sale-item.controller';
